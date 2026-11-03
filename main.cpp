@@ -1,14 +1,14 @@
-
 #include <iostream>
-#include "Utils.h"
 #include <fstream>
 #include <vector>
+#include <string>
+#include "Utils.h"
+
 using namespace std;
 
 // Print Menu Function
 int printMenu() {
     int choice;
-
 
     cout << "\n===== Smart Campus Navigation System =====" << endl;
     cout << " 1. View all facilities" << endl;
@@ -22,28 +22,197 @@ int printMenu() {
     cout << " 9. Run preorder traversal" << endl;
     cout << " 0. Exit" << endl;
     cout << "Enter your choice: ";
-    cin >> choice;
+
+    if (!(cin >> choice)) {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        return -1;
+    }
 
     return choice;
 }
 
-int main() {
-    int usrChoice;
+vector<string> loadBuildings(const string& dataDir) {
 
-ifstream in("data/buildings.txt");
-string line;
-vector<string> buildings;
+    string filename = dataDir + "/buildings.txt";
 
-while (getline(in, line)) {
-    line = trim(line);
-    if (line.empty()){
-        continue;
-     }
-     if (line[0] == '#') {
-        continue;
-     }
-     buildings.push_back(line);
+    ifstream in(filename);
+    string line;
+
+    vector<string> buildings;
+
+    int lineNo = 0;
+    int accepted = 0;
+    int rejected = 0;
+
+    if (!in) {
+        cout << "Error: could not open file " << filename << endl;
+        cout << "buildings.txt: 0 accepted, 0 rejected" << endl;
+        return buildings;
     }
+
+    while (getline(in, line)) {
+
+        lineNo++;
+
+        line = trim(line);
+
+        if (line.empty()) {
+            continue;
+        }
+
+        if (line[0] == '#') {
+            continue;
+        }
+
+        bool isDuplicate = false;
+
+        for (size_t i = 0; i < buildings.size(); i++) {
+
+            if (toUpper(buildings[i]) == toUpper(line)) {
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        if (isDuplicate) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": duplicate building \"" << line << "\"" << endl;
+
+            rejected++;
+            continue;
+        }
+
+        buildings.push_back(line);
+        accepted++;
+    }
+
+    cout << filename << ": " << accepted
+         << " accepted, " << rejected << " rejected" << endl;
+
+    return buildings;
+}
+
+int findBuildingIndex(const string& name, const vector<string>& buildings) {
+
+    for (size_t i = 0; i < buildings.size(); i++) {
+
+        if (toUpper(buildings[i]) == toUpper(name)) {
+            return static_cast<int>(i);
+        }
+    }
+
+    return -1;
+}
+
+// Load Connections
+void loadConnections(const string& dataDir,
+                     const vector<string>& buildings,
+                     vector<vector<int>>& adj) {
+
+    string filename = dataDir + "/connections.txt";
+
+    ifstream in(filename);
+    string line;
+
+    adj.clear();
+    adj.resize(buildings.size());
+
+    int lineNo = 0;
+    int accepted = 0;
+    int rejected = 0;
+
+    if (!in) {
+        cout << "Error: could not open file " << filename << endl;
+        cout << filename << ": 0 accepted, 0 rejected" << endl;
+        return;
+    }
+
+    while (getline(in, line)) {
+
+        lineNo++;
+
+        line = trim(line);
+
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        vector<string> parts = split(line, '|');
+
+        if (parts.size() != 2) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": incorrect number of fields" << endl;
+            rejected++;
+            continue;
+        }
+
+        string building1 = trim(parts[0]);
+        string building2 = trim(parts[1]);
+
+        if (building1.empty() || building2.empty()) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": missing building name" << endl;
+            rejected++;
+            continue;
+        }
+
+        int index1 = findBuildingIndex(building1, buildings);
+        int index2 = findBuildingIndex(building2, buildings);
+
+        if (index1 == -1) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": unknown building \"" << building1 << "\"" << endl;
+            rejected++;
+            continue;
+        }
+
+        if (index2 == -1) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": unknown building \"" << building2 << "\"" << endl;
+            rejected++;
+            continue;
+        }
+
+        if (index1 == index2) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": self-connection" << endl;
+            rejected++;
+            continue;
+        }
+
+        bool isDuplicate = false;
+
+        for (size_t i = 0; i < adj[index1].size(); i++) {
+            if (adj[index1][i] == index2) {
+                isDuplicate = true;
+                break;
+            }
+        }
+
+        if (isDuplicate) {
+            cout << "Warning: " << filename << " line " << lineNo
+                 << ": duplicate connection" << endl;
+            rejected++;
+            continue;
+        }
+
+        adj[index1].push_back(index2);
+        adj[index2].push_back(index1);
+
+        accepted++;
+    }
+
+    cout << filename << ": " << accepted
+         << " accepted, " << rejected << " rejected" << endl;
+}
+
+int main() {
+    
+vector<string> buildings = loadBuildings("data");
+vector<vector<int>> adj(buildings.size());
+loadConnections("data", buildings, adj);   
+int usrChoice;
 
 // Print Menu, then ask the user for their choice
     do {
