@@ -1,10 +1,14 @@
 
 #include <iostream>
+#include "Utils.h"
+#include <fstream>
+#include <vector>
 using namespace std;
 
 // Print Menu Function
 int printMenu() {
     int choice;
+
 
     cout << "\n===== Smart Campus Navigation System =====" << endl;
     cout << " 1. View all facilities" << endl;
@@ -25,6 +29,21 @@ int printMenu() {
 
 int main() {
     int usrChoice;
+
+ifstream in("data/buildings.txt");
+string line;
+vector<string> buildings;
+
+while (getline(in, line)) {
+    line = trim(line);
+    if (line.empty()){
+        continue;
+     }
+     if (line[0] == '#') {
+        continue;
+     }
+     buildings.push_back(line);
+    }
 
 // Print Menu, then ask the user for their choice
     do {
