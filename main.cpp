@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include "Utils.h"
+#include <queue>
+#include <limits>
 
 using namespace std;
 
@@ -207,6 +209,131 @@ void loadConnections(const string& dataDir,
          << " accepted, " << rejected << " rejected" << endl;
 }
 
+void printGraph(const vector<string>& buildings, const vector<vector<int>>& adj) {
+
+    if (buildings.empty()) {
+        cout << "No buildings available to display." << endl;
+        return;
+    }
+
+    for (size_t i = 0; i < buildings.size(); i++) {
+
+        cout << buildings[i] << ": ";
+
+        if (adj[i].empty()) {
+            cout << "(no connections)";
+        }
+        else {
+            for (size_t k = 0; k < adj[i].size(); k++) {
+
+                if (k > 0) {
+                    cout << ", ";
+                }
+
+                cout << buildings[adj[i][k]];
+            }
+        }
+
+        cout << endl;
+    }
+}
+
+void printCounts(const vector<string>& buildings, const vector<vector<int>>& adj) {
+
+    if (buildings.empty()) {
+        cout << "Total buildings: 0" << endl;
+        cout << "Total connections: 0" << endl;
+        return;
+    }
+
+    int totalDegrees = 0;
+
+    cout << "Total buildings: " << buildings.size() << endl;
+
+    for (size_t i = 0; i < buildings.size(); i++) {
+
+        int degree = adj[i].size();
+
+        cout << buildings[i] << ": degree " << degree << endl;
+
+        totalDegrees += degree;
+    }
+
+    int totalConnections = totalDegrees / 2;
+
+    cout << "Total connections: " << totalConnections << endl;
+}
+
+void findReachableBuildings(const vector<string>& buildings,
+                            const vector<vector<int>>& adj) {
+
+    if (buildings.empty()) {
+        cout << "No buildings available." << endl;
+        return;
+    }
+
+    string startName;
+
+    cout << "Enter starting building: ";
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, startName);
+
+    startName = trim(startName);
+
+    if (startName.empty()) {
+        cout << "Error: starting building cannot be empty." << endl;
+        return;
+    }
+
+    int startIndex = findBuildingIndex(startName, buildings);
+
+    if (startIndex == -1) {
+        cout << "Error: building \"" << startName << "\" not found." << endl;
+        return;
+    }
+
+    vector<bool> visited(buildings.size(), false);
+    vector<int> distance(buildings.size(), -1);
+    queue<int> q;
+
+    visited[startIndex] = true;
+    distance[startIndex] = 0;
+    q.push(startIndex);
+
+    int reachableCount = 0;
+
+    cout << "\nReachable buildings from "
+         << buildings[startIndex] << ":" << endl;
+
+    while (!q.empty()) {
+
+        int current = q.front();
+        q.pop();
+
+        cout << buildings[current] << " ("
+             << distance[current] << ")" << endl;
+
+        reachableCount++;
+
+        for (size_t i = 0; i < adj[current].size(); i++) {
+
+            int neighbor = adj[current][i];
+
+            if (!visited[neighbor]) {
+
+                visited[neighbor] = true;
+                distance[neighbor] = distance[current] + 1;
+
+                q.push(neighbor);
+            }
+        }
+    }
+
+    cout << "Reachable: " << reachableCount
+         << " of " << buildings.size() << " buildings" << endl;
+}
+
 int main() {
     
 vector<string> buildings = loadBuildings("data");
@@ -228,15 +355,15 @@ int usrChoice;
                 break;
 
             case 3:
-                cout << "Not implemented yet." << endl;
+                printGraph(buildings, adj);
                 break;
 
             case 4:
-                cout << "Not implemented yet." << endl;
+                printCounts(buildings, adj);
                 break;
 
             case 5:
-                cout << "Not implemented yet." << endl;
+                findReachableBuildings(buildings, adj);
                 break;
 
             case 6:
