@@ -29,22 +29,22 @@ facilities.txt, departments.txt.
 Directory layout
 ----------------
 Project2/
-|-- include/            Header files (Utils, Facility, HashTable,
-|                       FacilityDatabase, CampusGraph, DepartmentTree)
-|-- src/                Implementation files, including main.cpp
-|-- data/               The four instructor starter files (unchanged)
-|-- testdata/           Our own test cases:
-|     collision/        IDs that collide in the hash table + a duplicate ID
-|     badrecords/       Malformed/duplicate/unknown records, CRLF file
-|     missingfile/      facilities.txt and departments.txt missing (empty tree)
-|     rootonly/         Root-only department tree, empty facilities
-|     components/       Graph with three connected components
-|-- Makefile
-|-- README.txt
-|-- CONTRIBUTIONS.txt
-|-- design_document.txt
-|-- test_results.txt
-|-- .gitignore
+ |-- include/            Header files (Utils, Facility, HashTable,
+ |                       FacilityDatabase, CampusGraph, DepartmentTree)
+ |-- src/                Implementation files, including main.cpp
+ |-- data/               The four instructor starter files (unchanged)
+ |-- testdata/           Our own test cases:
+ |     collision/        IDs that collide in the hash table + a duplicate ID
+ |     badrecords/       Malformed/duplicate/unknown records, CRLF file
+ |     missingfile/      facilities.txt and departments.txt missing (empty tree)
+ |     rootonly/         Root-only department tree, empty facilities
+ |     components/       Graph with three connected components
+ |-- Makefile
+ |-- README.txt
+ |-- CONTRIBUTIONS.txt
+ |-- design_document.txt
+ |-- test_results.txt
+ |-- .gitignore
 
 CSCE 2110 Project 2 - Design Document (Milestone 1)
 Hash function
