@@ -57,4 +57,5 @@ Project2/
 7. Search department
 8. Display department hierarchy
 9. Run preorder traversal
-10. Exit Enter choice:
+10. Exit 
+Enter choice:
