@@ -86,13 +86,13 @@ Utils trim, case conversion, '|' splitting, comment check, warnings Facility str
 
 ===== Campus Navigator (Milestone 1) =====
 
-View all facilities
-1. Search facility by ID
-2. View campus graph
-3. Display graph counts and degrees
-4. Find reachable buildings (BFS)
-5. Add department
-6. Search department
-7. Display department hierarchy
-8. Run preorder traversal
-9. Exit Enter choice:
+1. View all facilities
+2. Search facility by ID
+3. View campus graph
+4. Display graph counts and degrees
+5. Find reachable buildings (BFS)
+6. Add department
+7. Search department
+8. Display department hierarchy
+9. Run preorder traversal
+10. Exit Enter choice:
