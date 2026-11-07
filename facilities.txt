@@ -1,0 +1,6 @@
+# F001, F013, F025 all hash to bucket 3 (capacity 11)
+F001|Reading Room|Library|Library
+F013|Study Room|Library|Library
+F002|Weight Room|Gym|Recreation
+F025|Quiet Room|Library|Library
+f013|Duplicate Room|Gym|Recreation
