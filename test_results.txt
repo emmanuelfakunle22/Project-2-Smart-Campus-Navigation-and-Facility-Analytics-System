@@ -1,0 +1,183 @@
+CSCE 2110 Project 2 - Milestone 1 Test Results
+================================================
+All tests run with: make && ./campus [data-directory]
+Format: Test # | Description | Input | Expected | Actual | Result
+
+--- 10.1 File Loading ---
+
+T1 | Sample files load in order with summaries
+   Input:    ./campus  (data/)
+   Expected: buildings 7/0, connections 6/0, facilities 10/0, departments 7/0
+   Actual:   buildings.txt: 7 accepted, 0 rejected
+             connections.txt: 6 accepted, 0 rejected
+             facilities.txt: 10 accepted, 0 rejected (hash capacity 11, entries 10, collisions 1)
+             departments.txt: 7 accepted, 0 rejected
+   Result:   PASS
+
+T2 | Blank lines, comment lines, too few / too many fields
+   Input:    ./campus testdata/badrecords
+   Expected: blank lines and "#" lines (including an indented "   # comment") skipped;
+             "Gym|Extra" (buildings), "Gym" (connections), 3-field and 5-field
+             facility lines rejected with line numbers
+   Actual:   WARNING: buildings.txt, line 6: expected 1 field, found 2
+             WARNING: connections.txt, line 5: expected 2 fields, found 1
+             WARNING: facilities.txt, line 2: expected 4 fields, found 3
+             WARNING: facilities.txt, line 3: expected 4 fields, found 5
+   Result:   PASS
+
+T3 | Missing files
+   Input:    ./campus testdata/missingfile  (no facilities.txt / departments.txt)
+             ./campus testdata/nope          (directory does not exist)
+   Expected: error naming each file, 0/0 summary, program continues to menu
+   Actual:   ERROR: could not open testdata/missingfile/facilities.txt (treated as empty)
+             facilities.txt: 0 accepted, 0 rejected (...)
+             ERROR: could not open testdata/missingfile/departments.txt (treated as empty)
+             (all four files reported for testdata/nope; menu still shown)
+   Result:   PASS
+
+T4 | Duplicate building differing only by case; duplicate ID differing by case
+   Input:    testdata/badrecords: "library" after "Library"; "f001" after "F001"
+   Expected: later records rejected, first kept
+   Actual:   WARNING: buildings.txt, line 5: duplicate building 'library'
+             WARNING: facilities.txt, line 5: duplicate facility ID F001
+             View all facilities shows "F001 | Main Room | ..." (original kept)
+   Result:   PASS
+
+T5 | Unknown buildings, duplicate and reversed connections, unknown parent
+   Input:    testdata/badrecords
+   Expected: each rejected with reason
+   Actual:   WARNING: connections.txt, line 2: unknown building 'Moon'
+             WARNING: connections.txt, line 3: duplicate connection Student Union - Library   (reversed)
+             WARNING: connections.txt, line 4: duplicate connection Library - Student Union   (repeat)
+             WARNING: facilities.txt, line 4: unknown building 'Moon'
+             WARNING: departments.txt, line 3: unknown parent 'College of Nowhere'
+   Result:   PASS
+
+T6 | (extra) Windows line endings, whitespace, lowercase ID, '#' inside a name
+   Input:    testdata/badrecords (connections.txt has \r\n endings;
+             facilities line "f005|  Room #5  |student union|Classroom")
+   Expected: CRLF file loads; F005 stored uppercase, name "Room #5", building
+             shown as "Student Union"
+   Actual:   F005 | Room #5 | Student Union | Classroom
+   Result:   PASS
+
+--- 10.2 Hash Table and Search ---
+
+T7 | ID search: found, lowercase, invalid format, not found
+   Input:    menu 2 with F004, f004, 004, F999 (data/)
+   Expected: found / same as F004 / invalid format / not found F999
+   Actual:   Found: F004 | Computer Lab A | Science Building | Computer Lab
+             Found: F004 | Computer Lab A | Science Building | Computer Lab
+             Invalid format: an ID is F followed by exactly three digits.
+             Not found: no facility with ID F999
+   Result:   PASS
+
+T8 | Hash collision with own test data + duplicate-key attempt
+   Input:    ./campus testdata/collision
+             F001, F013, F025 all hash to bucket 3 (capacity 11); F002 -> bucket 4;
+             line 6 is "f013" (duplicate of F013)
+   Expected: 4 accepted, 1 rejected, entries 4, collisions 2
+             (F013 and F025 each land in a nonempty bucket; the rejected
+             duplicate does not add a collision); lookups still work
+   Actual:   WARNING: facilities.txt, line 6: duplicate facility ID F013
+             facilities.txt: 4 accepted, 1 rejected (hash capacity 11, entries 4, collisions 2)
+             Search f013 -> Found: F013 | Study Room | Library | Library
+             Search F025 -> Found: F025 | Quiet Room | Library | Library
+   Result:   PASS
+
+--- 10.3 Graph and BFS ---
+
+T9 | BFS from a connected building
+   Input:    menu 5, "Library" (data/)
+   Expected: Library 0, Student Union 1, Business Building 1, Science Building 2,
+             Gym 2, Engineering Building 3; Reachable 6 of 7
+   Actual:   (exact match)  Reachable: 6 of 7 buildings
+   Result:   PASS
+
+T10 | BFS from an isolated building (typed lowercase)
+   Input:    menu 5, "observatory"
+   Expected: only Observatory (distance 0); Reachable 1 of 7
+   Actual:   Observatory (distance 0)  Reachable: 1 of 7 buildings
+   Result:   PASS
+
+T11 | BFS with unknown start
+   Input:    menu 5, "Moon"
+   Expected: error, return to menu
+   Actual:   Error: unknown building 'Moon'
+   Result:   PASS
+
+T12 | Graph with multiple components
+   Input:    ./campus testdata/components  ({A,B,C}, {D,E}, {F}); menu 3, 4, 5 "d", 5 "  f  "
+   Expected: 6 buildings, 3 connections, F "(no connections)";
+             BFS D reaches 2 of 6; BFS F reaches 1 of 6
+   Actual:   Total buildings: 6 / Total connections: 3 / F: (no connections)
+             Reachable: 2 of 6 buildings / Reachable: 1 of 6 buildings
+   Result:   PASS
+
+T13 | Graph display and degrees on sample data
+   Input:    menu 3, menu 4 (data/)
+   Expected: degrees 2,3,2,1,2,2,0; 7 buildings; 6 connections
+   Actual:   (exact match)
+   Result:   PASS
+
+--- 10.4 Tree and Menu ---
+
+T14 | Empty tree: add root without parent prompt
+   Input:    ./campus testdata/missingfile; menu 8, 9, 6 "University"
+   Expected: empty messages, then root added with no parent prompt
+   Actual:   No departments are loaded. (x2)
+             Added 'University' as the root department.
+   Result:   PASS
+
+T15 | Root-only tree
+   Input:    ./campus testdata/rootonly; menu 7 "university", 8, 9
+   Expected: parent None, 0 children, depth 0; hierarchy and preorder show University
+   Actual:   Name: University / Parent: None / Direct children: 0 / Depth: 0
+   Result:   PASS
+
+T16 | Search root, non-root, missing department
+   Input:    menu 7: "University", "computer science", "Art" (data/)
+   Expected: root (None, 2 children, depth 0); CS (College of Engineering, 0, depth 2); not found
+   Actual:   (exact match); Department 'Art' not found.
+   Result:   PASS
+
+T17 | Add with unknown parent; add duplicate
+   Input:    testdata/missingfile after root: 6 "College of Arts"/"Nowhere"; 6 "university"
+   Expected: errors, tree unchanged
+   Actual:   Error: unknown parent 'Nowhere'. Tree unchanged.
+             Error: duplicate department 'university'.
+   Result:   PASS
+
+T18 | Hierarchy (4-space indent) and preorder traversal
+   Input:    menu 8, menu 9 (data/)
+   Expected: Section 9 Example 7 indentation; preorder University, College of
+             Engineering, Computer Science, Electrical Engineering, College of
+             Science, Mathematics, Physics
+   Actual:   (exact match)
+   Result:   PASS
+
+T19 | Invalid menu input
+   Input:    "abc", "" (blank), "99", "-1", "2.5"
+   Expected: error each time, menu shown again, no crash or infinite loop
+   Actual:   Invalid choice. Enter a number from 0 to 9.  (x5)
+   Result:   PASS
+
+T20 | Names with spaces, blank names, repeated operations after errors
+   Input:    menu 2 with blank ID; 5 "Student Union"; 5 "student  union" (two spaces); 6 with blank name
+   Expected: blank -> error; "Student Union" works; two-space version is unknown
+   Actual:   Error: name cannot be blank.
+             Reachable from Student Union: ... Reachable: 6 of 7 buildings
+             Error: unknown building 'student  union'
+   Result:   PASS
+
+T21 | (extra) End of input during menu
+   Input:    printf '1\n' | ./campus
+   Expected: exits cleanly, no infinite loop
+   Actual:   End of input. Goodbye.
+   Result:   PASS
+
+--- Memory check (optional for M1) ---
+T22 | valgrind --leak-check=full ./campus
+   Actual:   All heap blocks were freed -- no leaks are possible
+             ERROR SUMMARY: 0 errors from 0 contexts
+   Result:   PASS
