@@ -1,6 +1,6 @@
 // main.cpp
 // Purpose: Program entry point. Loads the four data files in order and runs
-//          the Milestone 1 menu. Data-structure logic lives in the classes.
+//          the Final menu. Data-structure logic lives in the classes.
 // Author:  Emmanuel, Andrew, Jacoby (shared work)
 #include <iostream>
 #include <string>
@@ -29,7 +29,7 @@ static void printMenu() {
               << "15. Department statistics\n"
               << "16. Facility category report\n"
               << "17. Graph connectivity report\n"
-              << "0. Exit\n"
+              << "18. Exit\n"
 }
 
 // Reads a whole line from cin. Returns false at end of input.
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
             std::cout << "Invalid choice. Enter a number from 0 to 9.\n";
             continue;
         }
-        if (choice == 0) { std::cout << "Goodbye.\n"; break; }
+        if (choice == 18) { std::cout << "Goodbye.\n"; break; }
 
         std::string input;
         switch (choice) {
