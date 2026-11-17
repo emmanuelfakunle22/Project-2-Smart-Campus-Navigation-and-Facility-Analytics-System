@@ -11,18 +11,25 @@
 
 // Prints the Milestone 1 menu (numbers must match Section 6.9).
 static void printMenu() {
-    std::cout << "\n===== Campus Navigator (Milestone 1) =====\n"
+    std::cout << "\n===== Campus Navigator (FINAL) =====\n"
               << "1. View all facilities\n"
               << "2. Search facility by ID\n"
-              << "3. View campus graph\n"
-              << "4. Display graph counts and degrees\n"
-              << "5. Find reachable buildings (BFS)\n"
-              << "6. Add department\n"
-              << "7. Search department\n"
-              << "8. Display department hierarchy\n"
-              << "9. Run preorder traversal\n"
+              << "3. Search facility by name\n"
+              << "4. Search facility by category\n"
+              << "5. View campus graph\n"
+              << "6. Display graph counts and degrees\n"
+              << "7. Find reachable buildings (BFS)\n"
+              << "8. Find shortest path (BFS)\n"
+              << "9. Add department\n"
+              << "10. Search department\n"
+              << "11. Display department hierarchy\n"
+              << "12. Preorder traversal\n"
+              << "13. Postorder traversal\n"
+              << "14. Level-order traversal\n"
+              << "15. Department statistics\n"
+              << "16. Facility category report\n"
+              << "17. Graph connectivity report\n"
               << "0. Exit\n"
-              << "Enter choice: ";
 }
 
 // Reads a whole line from cin. Returns false at end of input.
@@ -109,17 +116,24 @@ int main(int argc, char* argv[]) {
             case 2:
                 if (promptName("Facility ID: ", input)) facilities.searchById(input);
                 break;
-            case 3: graph.display(); break;
-            case 4: graph.displayCounts(); break;
-            case 5:
-                if (promptName("Starting building: ", input)) graph.bfsReachable(input);
+            case 3: cout << "Not Implemented Yet.\n";
+            case 4: cout << "Not Implemented Yet.\n";
+            case 5: graph.display(); break;
+            case 6: graph.displayCounts(); break;
+            case 7: if (promptName("Starting building: ", input)) graph.bfsReachable(input);
                 break;
-            case 6: addDepartment(departments); break;
-            case 7:
-                if (promptName("Department name: ", input)) departments.search(input);
+            case 8: cout << "Not Implemented Yet.\n"
+            case 9: addDepartment(departments); break;
+            case 10: if (promptName("Department name: ", input)) departments.search(input);
                 break;
-            case 8: departments.displayHierarchy(); break;
-            case 9: departments.displayPreorder(); break;
+            case 11: departments.displayHierarchy(); break;
+            case 12: departments.displayPreorder(); break;
+            case 13: cout << "Not Implemented Yet.\n";
+            case 14: cout << "Not Implemented Yet.\n";           
+            case 15: cout << "Not Implemented Yet.\n";
+            case 16: cout << "Not Implemented Yet.\n";
+            case 17: cout << "Not Implemented Yet.\n";
+
         }
     }
     return 0;
