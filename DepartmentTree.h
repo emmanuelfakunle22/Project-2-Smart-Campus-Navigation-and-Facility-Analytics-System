@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+
 // One department. Children are kept in insertion order.
 struct DepartmentNode {
     std::string name;
@@ -45,12 +46,18 @@ public:
     // Preorder sequence without indentation.
     void displayPreorder() const;
 
+    void displayPostorder() const;
+    
+    void displayLevelOrder() const;
+
 private:
     // Recursive helpers.
     DepartmentNode* findRec(DepartmentNode* node, const std::string& lowerName) const;
     void destroy(DepartmentNode* node);
     void hierarchyRec(const DepartmentNode* node, int depth) const;
     void preorderRec(const DepartmentNode* node, std::vector<std::string>& out) const;
+    void postorderRec(const DepartmentNode* node, std::vector<std::string>& out) const;
+
 
     // Number of edges from the root to node.
     static int depthOf(const DepartmentNode* node);
@@ -61,5 +68,8 @@ private:
     DepartmentTree(const DepartmentTree&);
     DepartmentTree& operator=(const DepartmentTree&);
 };
+
+
+
 
 #endif
