@@ -8,6 +8,7 @@
 #include "CampusGraph.h"
 #include "FacilityDatabase.h"
 #include "DepartmentTree.h"
+using namespace std;
 
 // Prints the Milestone 1 menu (numbers must match Section 6.9).
 static void printMenu() {
@@ -122,14 +123,14 @@ int main(int argc, char* argv[]) {
             case 6: graph.displayCounts(); break;
             case 7: if (promptName("Starting building: ", input)) graph.bfsReachable(input);
                 break;
-            case 8: cout << "Not Implemented Yet.\n"
+            case 8: cout << "Not Implemented Yet.\n";
             case 9: addDepartment(departments); break;
             case 10: if (promptName("Department name: ", input)) departments.search(input);
                 break;
             case 11: departments.displayHierarchy(); break;
             case 12: departments.displayPreorder(); break;
-            case 13: cout << "Not Implemented Yet.\n";
-            case 14: cout << "Not Implemented Yet.\n";           
+            case 13: departments.displayPostorder(); break;
+            case 14: departments.displayLevelOrder(); break;          
             case 15: cout << "Not Implemented Yet.\n";
             case 16: cout << "Not Implemented Yet.\n";
             case 17: cout << "Not Implemented Yet.\n";
