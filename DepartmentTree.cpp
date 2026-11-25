@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include <fstream>
 #include <iostream>
+#include <queue>
 
 // Empty tree.
 DepartmentTree::DepartmentTree() : root(nullptr) {}
@@ -161,4 +162,47 @@ void DepartmentTree::displayPreorder() const {
     preorderRec(root, order);
     std::cout << "Preorder:\n";
     for (size_t i = 0; i < order.size(); i++) std::cout << order[i] << "\n";
+}
+
+// Postorder helper: visit each child left to right, then the node itself.
+void DepartmentTree::postorderRec(const DepartmentNode* node,
+                                  std::vector<std::string>& out) const {
+    if (node == nullptr) return;
+    for (size_t i = 0; i < node->children.size(); i++) {
+        postorderRec(node->children[i], out);
+    }
+    out.push_back(node->name);
+}
+
+// Menu option 13: prints departments in postorder.
+void DepartmentTree::displayPostorder() const {
+    if (root == nullptr) {
+        std::cout << "No departments are loaded.\n";
+        return;
+    }
+    std::vector<std::string> out;
+    postorderRec(root, out);
+    std::cout << "Postorder:\n";
+    for (size_t i = 0; i < out.size(); i++) {
+        std::cout << out[i] << "\n";
+    }
+}
+
+// Menu option 14: breadth-first. Root, then all depth-1 departments, then depth-2, etc.
+void DepartmentTree::displayLevelOrder() const {
+    if (root == nullptr) {
+        std::cout << "No departments are loaded.\n";
+        return;
+    }
+    std::queue<const DepartmentNode*> q;
+    q.push(root);
+    std::cout << "Level-order:\n";
+    while (!q.empty()) {
+        const DepartmentNode* node = q.front();
+        q.pop();
+        std::cout << node->name << "\n";
+        for (size_t i = 0; i < node->children.size(); i++) {
+            q.push(node->children[i]);
+        }
+    }
 }
