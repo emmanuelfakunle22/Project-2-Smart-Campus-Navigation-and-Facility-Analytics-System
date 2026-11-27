@@ -1,0 +1,17 @@
+# Executables and build output
+campus
+campus.exe
+*.o
+*.obj
+*.out
+*.exe
+build/
+
+# Editor / IDE files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+*.code-workspace
+cmake-build-*/
