@@ -1,6 +1,6 @@
 // DepartmentTree.h
 // Purpose: General tree (any number of children) for the department hierarchy.
-// Author:  Member C (department tree)
+// Author:  Jacob (Member C - department tree)
 #ifndef DEPARTMENTTREE_H
 #define DEPARTMENTTREE_H
 
@@ -45,7 +45,22 @@ public:
     // Preorder sequence without indentation.
     void displayPreorder() const;
 
+    // Postorder sequence: children (left to right) before the parent.
+    void displayPostorder() const;
+
+    // Level-order (breadth-first) sequence using a queue.
+    void displayLevelOrder() const;
+
+    // Total departments, number of leaves, and height (N/A when empty).
+    void displayStatistics() const;
+
 private:
+    void postorderRec(const DepartmentNode* node, std::vector<std::string>& out) const;
+
+    // Fills count, leaves, and height (max depth) for the subtree at node.
+    void statsRec(const DepartmentNode* node, int depth,
+                  int& count, int& leaves, int& height) const;
+
     // Recursive helpers.
     DepartmentNode* findRec(DepartmentNode* node, const std::string& lowerName) const;
     void destroy(DepartmentNode* node);
