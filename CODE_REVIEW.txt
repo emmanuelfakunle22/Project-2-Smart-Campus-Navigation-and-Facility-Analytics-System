@@ -1,0 +1,45 @@
+CSCE 2110 Project 2 - Code Review (TEAM-4)
+==========================================
+
+Reviewer:        Jacob Beard (Member C)
+Module reviewed: Facility.h, HashTable.h/.cpp, FacilityDatabase.h/.cpp
+Author:          Emmanuel Fakunle (Member A)
+Date:            11/23/2026
+
+Checklist (each item checked by reading the code and running the program)
+-------------------------------------------------------------------------
+[x] 1. hash() uses the uppercase key and the capacity, and does not use
+       std::hash. Formula h = (h * 31 + c) % capacity.   (HashTable.cpp)
+[x] 2. IDs are uppercased BEFORE hashing in insert() and find(), so
+       "f004" and "F004" land in the same bucket.
+       Ran: ./campus, option 2, f004 -> same result as F004
+[x] 3. find() searches only buckets[hash(key)], never every facility.
+[x] 4. A duplicate ID is rejected before the collision counter changes,
+       and the first record is kept.
+       Ran: ./campus testdata/collision -> entries 4, collisions 2
+[x] 5. ID search shows three different outcomes: 004 -> invalid format,
+       F999 -> not found, F004 -> found.
+[x] 6. Name search returns both "Room 101" facilities in file order and
+       ignores case and outer spaces.
+       Ran: option 3, "  room 101 " -> F005, F007, Matches: 2
+[x] 7. Category report groups Classroom/classroom/CLASSROOM, keeps the
+       first spelling, and never divides by zero.
+       Ran: ./campus testdata/categories, option 16 -> Classroom 3, 75.0%
+       Ran: ./campus testdata/rootonly, option 16 -> none available, total 0
+[x] 8. Every function has a comment, and the file headers have purpose
+       and author.
+
+Issues found
+------------
+1. FacilityDatabase::load() checked table.contains(id) first, then called
+   table.insert(fac) without using its return value. If insert() ever
+   failed, the facility would still be pushed onto the display list, so
+   the list and the hash table could disagree.
+   Fix (by Emmanuel): load() now uses insert()'s return value as the
+   duplicate check and only adds to the list when insert() succeeds.
+   Re-ran testdata/collision and testdata/badrecords: same warnings and
+   summaries as before (duplicate F013 and F001 still rejected).
+
+Result
+------
+Approved after changes.
