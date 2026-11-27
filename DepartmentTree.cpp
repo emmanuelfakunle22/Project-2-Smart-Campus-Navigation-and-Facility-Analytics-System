@@ -1,10 +1,12 @@
 // DepartmentTree.cpp
-// Purpose: General-tree loading, add, search, hierarchy display, preorder.
-// Author:  Member C (department tree)
+// Purpose: General-tree loading, add, search, hierarchy display, and
+//          preorder, postorder, and level-order traversals; statistics.
+// Author:  Jacob (Member C - department tree)
 #include "DepartmentTree.h"
 #include "Utils.h"
 #include <fstream>
 #include <iostream>
+#include <queue>
 
 // Empty tree.
 DepartmentTree::DepartmentTree() : root(nullptr) {}
@@ -161,4 +163,68 @@ void DepartmentTree::displayPreorder() const {
     preorderRec(root, order);
     std::cout << "Preorder:\n";
     for (size_t i = 0; i < order.size(); i++) std::cout << order[i] << "\n";
+}
+
+// Recursive postorder: each child (left to right), then the node.
+void DepartmentTree::postorderRec(const DepartmentNode* node,
+                                  std::vector<std::string>& out) const {
+    for (size_t i = 0; i < node->children.size(); i++)
+        postorderRec(node->children[i], out);
+    out.push_back(node->name);
+}
+
+// Postorder as a plain sequence.
+void DepartmentTree::displayPostorder() const {
+    if (root == nullptr) {
+        std::cout << "No departments are loaded.\n";
+        return;
+    }
+    std::vector<std::string> order;
+    postorderRec(root, order);
+    std::cout << "Postorder:\n";
+    for (size_t i = 0; i < order.size(); i++) std::cout << order[i] << "\n";
+}
+
+// Level-order: dequeue a node, print it, enqueue its children in order.
+void DepartmentTree::displayLevelOrder() const {
+    if (root == nullptr) {
+        std::cout << "No departments are loaded.\n";
+        return;
+    }
+    std::queue<const DepartmentNode*> q;
+    q.push(root);
+    std::cout << "Level-order:\n";
+    while (!q.empty()) {
+        const DepartmentNode* cur = q.front();
+        q.pop();
+        std::cout << cur->name << "\n";
+        for (size_t i = 0; i < cur->children.size(); i++) q.push(cur->children[i]);
+    }
+}
+
+// Visits every node once: counts it, counts it as a leaf if it has no
+// children, and keeps the largest depth seen as the height.
+void DepartmentTree::statsRec(const DepartmentNode* node, int depth,
+                              int& count, int& leaves, int& height) const {
+    count++;
+    if (node->children.empty()) leaves++;
+    if (depth > height) height = depth;
+    for (size_t i = 0; i < node->children.size(); i++)
+        statsRec(node->children[i], depth + 1, count, leaves, height);
+}
+
+// Prints statistics; an empty tree shows 0, 0, N/A.
+void DepartmentTree::displayStatistics() const {
+    if (root == nullptr) {
+        std::cout << "No departments are loaded.\n";
+        std::cout << "Total departments: 0\n";
+        std::cout << "Leaf departments: 0\n";
+        std::cout << "Tree height: N/A\n";
+        return;
+    }
+    int count = 0, leaves = 0, height = 0;
+    statsRec(root, 0, count, leaves, height);
+    std::cout << "Total departments: " << count << "\n";
+    std::cout << "Leaf departments: " << leaves << "\n";
+    std::cout << "Tree height: " << height << "\n";
 }
