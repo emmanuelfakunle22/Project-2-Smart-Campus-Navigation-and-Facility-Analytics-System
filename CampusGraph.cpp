@@ -1,5 +1,6 @@
 // CampusGraph.cpp
-// Purpose: Adjacency-list graph loading, display, statistics, and BFS.
+// Purpose: Adjacency-list graph loading, display, statistics, BFS,
+//          shortest path, and connectivity report.
 // Author:  Andrew (Member B - campus graph / BFS)
 #include "CampusGraph.h"
 #include "Utils.h"
@@ -187,4 +188,121 @@ void CampusGraph::bfsReachable(const std::string& startName) const {
         }
     }
     std::cout << "Reachable: " << reached << " of " << names.size() << " buildings\n";
+}
+
+// BFS from start that records parent[v] = the vertex v was discovered from.
+// Because neighbors are scanned in insertion order and each vertex gets its
+// parent only the first time it is seen, ties follow neighbor order.
+void CampusGraph::shortestPath(const std::string& startName, const std::string& destName) const {
+    int start = findBuilding(startName);
+    int dest = findBuilding(destName);
+    if (start < 0 || dest < 0) {
+        if (start < 0) std::cout << "Error: unknown start building '" << trim(startName) << "'\n";
+        if (dest < 0) std::cout << "Error: unknown destination building '" << trim(destName) << "'\n";
+        return;
+    }
+    if (start == dest) {
+        std::cout << "Path:\n  " << names[start] << "\n";
+        std::cout << "Number of connections: 0\n";
+        return;
+    }
+
+    std::vector<bool> visited(names.size(), false);
+    std::vector<int> parent(names.size(), -1);
+    std::queue<int> q;
+    visited[start] = true;
+    q.push(start);
+
+    while (!q.empty() && !visited[dest]) {
+        int cur = q.front();
+        q.pop();
+        for (size_t i = 0; i < adj[cur].size(); i++) {
+            int next = adj[cur][i];
+            if (!visited[next]) {
+                visited[next] = true;
+                parent[next] = cur;
+                q.push(next);
+            }
+        }
+    }
+
+    if (!visited[dest]) {
+        std::cout << "No path exists from " << names[start] << " to " << names[dest] << ".\n";
+        return;
+    }
+
+    // Walk parents back from dest, then print in forward order.
+    std::vector<int> path;
+    for (int v = dest; v != -1; v = parent[v]) path.push_back(v);
+    std::cout << "Path:\n";
+    for (int i = static_cast<int>(path.size()) - 1; i >= 0; i--)
+        std::cout << "  " << names[path[i]] << "\n";
+    std::cout << "Number of connections: " << path.size() - 1 << "\n";
+}
+
+// Plain BFS used to mark one whole connected component.
+void CampusGraph::markComponent(int start, std::vector<bool>& visited) const {
+    std::queue<int> q;
+    visited[start] = true;
+    q.push(start);
+    while (!q.empty()) {
+        int cur = q.front();
+        q.pop();
+        for (size_t i = 0; i < adj[cur].size(); i++) {
+            int next = adj[cur][i];
+            if (!visited[next]) {
+                visited[next] = true;
+                q.push(next);
+            }
+        }
+    }
+}
+
+// Components: start a BFS from every vertex not yet visited; each new
+// start is one more component (an isolated building counts by itself).
+void CampusGraph::connectivityReport() const {
+    std::cout << "Total buildings: " << names.size() << "\n";
+    std::cout << "Total connections: " << edgeCount << "\n";
+    if (names.empty()) {
+        std::cout << "No buildings are loaded.\n";
+        std::cout << "Connected components: 0\n";
+        return;
+    }
+
+    size_t maxDeg = 0;
+    for (size_t i = 0; i < names.size(); i++)
+        if (adj[i].size() > maxDeg) maxDeg = adj[i].size();
+
+    std::cout << "Highest degree (" << maxDeg << "): ";
+    bool first = true;
+    for (size_t i = 0; i < names.size(); i++) {
+        if (adj[i].size() == maxDeg) {
+            if (!first) std::cout << ", ";
+            std::cout << names[i];
+            first = false;
+        }
+    }
+    std::cout << "\n";
+
+    std::cout << "Isolated buildings: ";
+    first = true;
+    for (size_t i = 0; i < names.size(); i++) {
+        if (adj[i].empty()) {
+            if (!first) std::cout << ", ";
+            std::cout << names[i];
+            first = false;
+        }
+    }
+    if (first) std::cout << "None";
+    std::cout << "\n";
+
+    std::vector<bool> visited(names.size(), false);
+    int components = 0;
+    for (size_t i = 0; i < names.size(); i++) {
+        if (!visited[i]) {
+            markComponent(static_cast<int>(i), visited);
+            components++;
+        }
+    }
+    std::cout << "Connected components: " << components << "\n";
 }
