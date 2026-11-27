@@ -1,0 +1,36 @@
+CSCE 2110 Project 2 - Contributions (Final)
+===========================================
+
+Member A: Emmanuel Fakunle (Team Leader)
+  Modules owned: Facility.h, HashTable.h/.cpp, FacilityDatabase.h/.cpp
+  (facility records, custom hash table, ID search, name and category
+   search, category report, collision and categories test data)
+
+Member B: Andrew Camargo
+  Modules owned: CampusGraph.h/.cpp
+  (adjacency-list graph, connection validation, counts/degrees, BFS
+   reachability, shortest path, connectivity report, components and tie
+   test data)
+
+Member C: Jacob Beard
+  Modules owned: DepartmentTree.h/.cpp
+  (general tree, department loading, add/search, hierarchy, preorder,
+   postorder, level-order, statistics, rootonly and missingfile test data)
+
+Shared work (all members):
+  Utils.h/.cpp (file-loading helpers), main.cpp (menu and input handling),
+  Makefile, README.txt, design_document.txt, test_results.txt, CODE_REVIEW.txt,
+  badrecords and emptyfiles test data.
+
+
+Individual reflections (3 to 5 sentences each)
+==============================================
+
+Emmanuel Fakunle:
+I built the facility module: the Facility record, the custom hash table with separate chaining, and the ID, name, and category searches, plus the category report. I also coordinated the team as leader and kept the ZIP and GitHub repository in sync. I reviewed Andrew's shortest-path code, checking that ties follow neighbor insertion order. One bug I found was that our first menu used cin >> choice, which looped forever when piped input ran out; I fixed it by reading whole lines with getline and exiting cleanly at end of input.
+
+Andrew Camargo:
+I built the campus graph using an adjacency list, including connection validation, the counts and degrees display, BFS reachability, shortest path, and the connectivity report. I made sure each connection is stored at both buildings but counted once, and that neighbors are never sorted so BFS order stays correct. I reviewed Jacob's tree traversals, checking that siblings are visited in insertion order and that level-order uses a queue. One bug I found was that buildings.txt accepted a line like "Gym|Extra" as a building name because there was no field-count check, so I added one that rejects lines without exactly one field.
+
+Jacob Beard:
+I built the department tree as a general tree where each node keeps a vector of children, along with loading, adding, searching, the indented hierarchy, and the preorder, postorder, and level-order traversals. I also wrote the statistics feature, which reports total departments, leaves, and height, including the empty and root-only cases. I reviewed Emmanuel's facility and hash table module and documented it in CODE_REVIEW.txt. One bug I found there was that FacilityDatabase::load() called table.insert() without using its return value, so if an insert ever failed, the facility would still be added to the display list and the list and hash table could disagree; Emmanuel fixed it by using insert()'s return value as the duplicate check.
