@@ -1,7 +1,7 @@
 // main.cpp
 // Purpose: Program entry point. Loads the four data files in order and runs
-//          the Milestone 1 menu. Data-structure logic lives in the classes.
-// Author:  Emmanuel, Andrew, Jacoby (shared work)
+//          the Final menu. Data-structure logic lives in the classes.
+// Author:  Emmanuel, Andrew, Jacob (shared work)
 #include <iostream>
 #include <string>
 #include "Utils.h"
@@ -9,19 +9,30 @@
 #include "FacilityDatabase.h"
 #include "DepartmentTree.h"
 
-// Prints the Milestone 1 menu (numbers must match Section 6.9).
+// Highest menu option number.
+const int MAX_OPTION = 17;
+
+// Prints the Final menu (numbers must match Section 6.9).
 static void printMenu() {
-    std::cout << "\n===== Campus Navigator (Milestone 1) =====\n"
-              << "1. View all facilities\n"
-              << "2. Search facility by ID\n"
-              << "3. View campus graph\n"
-              << "4. Display graph counts and degrees\n"
-              << "5. Find reachable buildings (BFS)\n"
-              << "6. Add department\n"
-              << "7. Search department\n"
-              << "8. Display department hierarchy\n"
-              << "9. Run preorder traversal\n"
-              << "0. Exit\n"
+    std::cout << "\n===== Smart Campus Navigation System =====\n"
+              << " 1. View all facilities\n"
+              << " 2. Search facility by ID\n"
+              << " 3. Search facility by name\n"
+              << " 4. Search facility by category\n"
+              << " 5. View campus graph\n"
+              << " 6. Display graph counts and degrees\n"
+              << " 7. Find reachable buildings (BFS)\n"
+              << " 8. Find shortest path (BFS)\n"
+              << " 9. Add department\n"
+              << "10. Search department\n"
+              << "11. Display department hierarchy\n"
+              << "12. Preorder traversal\n"
+              << "13. Postorder traversal\n"
+              << "14. Level-order traversal\n"
+              << "15. Department statistics\n"
+              << "16. Facility category report\n"
+              << "17. Graph connectivity report\n"
+              << " 0. Exit\n"
               << "Enter choice: ";
 }
 
@@ -95,31 +106,47 @@ int main(int argc, char* argv[]) {
 
     while (true) {
         printMenu();
-        int choice = readChoice(9);
+        int choice = readChoice(MAX_OPTION);
         if (choice == -2) { std::cout << "\nEnd of input. Goodbye.\n"; break; }
         if (choice == -1) {
-            std::cout << "Invalid choice. Enter a number from 0 to 9.\n";
+            std::cout << "Invalid choice. Enter a number from 0 to " << MAX_OPTION << ".\n";
             continue;
         }
         if (choice == 0) { std::cout << "Goodbye.\n"; break; }
 
-        std::string input;
+        std::string input, input2;
         switch (choice) {
             case 1: facilities.displayAll(); break;
             case 2:
                 if (promptName("Facility ID: ", input)) facilities.searchById(input);
                 break;
-            case 3: graph.display(); break;
-            case 4: graph.displayCounts(); break;
-            case 5:
+            case 3:
+                if (promptName("Facility name: ", input)) facilities.searchByName(input);
+                break;
+            case 4:
+                if (promptName("Category: ", input)) facilities.searchByCategory(input);
+                break;
+            case 5: graph.display(); break;
+            case 6: graph.displayCounts(); break;
+            case 7:
                 if (promptName("Starting building: ", input)) graph.bfsReachable(input);
                 break;
-            case 6: addDepartment(departments); break;
-            case 7:
+            case 8:
+                if (promptName("Start building: ", input) &&
+                    promptName("Destination building: ", input2))
+                    graph.shortestPath(input, input2);
+                break;
+            case 9: addDepartment(departments); break;
+            case 10:
                 if (promptName("Department name: ", input)) departments.search(input);
                 break;
-            case 8: departments.displayHierarchy(); break;
-            case 9: departments.displayPreorder(); break;
+            case 11: departments.displayHierarchy(); break;
+            case 12: departments.displayPreorder(); break;
+            case 13: departments.displayPostorder(); break;
+            case 14: departments.displayLevelOrder(); break;
+            case 15: departments.displayStatistics(); break;
+            case 16: facilities.categoryReport(); break;
+            case 17: graph.connectivityReport(); break;
         }
     }
     return 0;
