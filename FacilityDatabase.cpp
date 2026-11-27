@@ -1,11 +1,13 @@
 // FacilityDatabase.cpp
-// Purpose: Facility loading, display, and hash-table ID search.
+// Purpose: Facility loading, display, hash-table ID search, name and
+//          category search, and the category report.
 // Author:  Emmanuel (Member A - facilities / hash table)
 #include "FacilityDatabase.h"
 #include "CampusGraph.h"
 #include "Utils.h"
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <cctype>
 
 // Starts with an empty list and a table of the default capacity.
@@ -62,17 +64,18 @@ void FacilityDatabase::load(const std::string& path, const std::string& displayN
                 printWarning(displayName, lineNum, "unknown building '" + f[2] + "'");
                 rejected++; continue;
             }
-            if (table.contains(id)) {
-                printWarning(displayName, lineNum, "duplicate facility ID " + id);
-                rejected++; continue;
-            }
-
             Facility fac;
             fac.id = id;
             fac.name = f[1];
             fac.building = graph.getBuildingName(b);   // buildings.txt spelling
             fac.category = f[3];
-            table.insert(fac);
+
+            // insert() is the duplicate check: it returns false (and changes
+            // nothing) if the ID exists, so the list and table stay in sync.
+            if (!table.insert(fac)) {
+                printWarning(displayName, lineNum, "duplicate facility ID " + id);
+                rejected++; continue;
+            }
             facilities.push_back(fac);
             accepted++;
         }
@@ -108,4 +111,76 @@ void FacilityDatabase::searchById(const std::string& input) const {
         std::cout << "Found: ";
         printFacility(*f);
     }
+}
+
+// Simple scan in file order. Both sides are lowercased so capitalization
+// does not matter; internal spaces must match exactly.
+void FacilityDatabase::searchByName(const std::string& input) const {
+    std::string key = toLower(trim(input));
+    int matches = 0;
+    for (size_t i = 0; i < facilities.size(); i++) {
+        if (toLower(facilities[i].name) == key) {
+            printFacility(facilities[i]);
+            matches++;
+        }
+    }
+    if (matches == 0) std::cout << "No facility named '" << trim(input) << "'.\n";
+    std::cout << "Matches: " << matches << "\n";
+}
+
+// Same scan as searchByName, but on the category field.
+void FacilityDatabase::searchByCategory(const std::string& input) const {
+    std::string key = toLower(trim(input));
+    int matches = 0;
+    for (size_t i = 0; i < facilities.size(); i++) {
+        if (toLower(facilities[i].category) == key) {
+            printFacility(facilities[i]);
+            matches++;
+        }
+    }
+    if (matches == 0) std::cout << "No facilities in category '" << trim(input) << "'.\n";
+    std::cout << "Matches: " << matches << "\n";
+}
+
+// Builds a list of distinct categories in first-seen order. Two parallel
+// vectors: names[i] is the first accepted spelling, counts[i] its count.
+void FacilityDatabase::categoryReport() const {
+    if (facilities.empty()) {
+        std::cout << "No facilities are available.\n";
+        std::cout << "Total: 0\n";
+        return;   // never divide by zero
+    }
+    std::vector<std::string> names;
+    std::vector<int> counts;
+    for (size_t i = 0; i < facilities.size(); i++) {
+        std::string key = toLower(facilities[i].category);
+        bool found = false;
+        for (size_t j = 0; j < names.size(); j++) {
+            if (toLower(names[j]) == key) {
+                counts[j]++;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            names.push_back(facilities[i].category);
+            counts.push_back(1);
+        }
+    }
+
+    double total = static_cast<double>(facilities.size());
+    std::cout << std::left << std::setw(28) << "Category"
+              << std::right << std::setw(8) << "Count"
+              << std::setw(13) << "Percentage" << "\n";
+    std::cout << std::fixed << std::setprecision(1);
+    for (size_t j = 0; j < names.size(); j++) {
+        std::cout << std::left << std::setw(28) << names[j]
+                  << std::right << std::setw(8) << counts[j]
+                  << std::setw(12) << (counts[j] * 100.0 / total) << "%\n";
+    }
+    std::cout << std::left << std::setw(28) << "Total"
+              << std::right << std::setw(8) << facilities.size()
+              << std::setw(12) << 100.0 << "%\n";
+    std::cout.unsetf(std::ios::fixed);
+    std::cout << std::setprecision(6);
 }
