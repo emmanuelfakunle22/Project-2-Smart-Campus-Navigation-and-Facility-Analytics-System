@@ -1,6 +1,6 @@
 // CampusGraph.h
 // Purpose: Undirected, unweighted campus graph stored as an adjacency list,
-//          with BFS reachability.
+//          with BFS reachability, shortest path, and connectivity report.
 // Author:  Andrew (Member B - campus graph / BFS)
 #ifndef CAMPUSGRAPH_H
 #define CAMPUSGRAPH_H
@@ -37,7 +37,18 @@ public:
     // BFS from the named building, printing visit order and distances.
     void bfsReachable(const std::string& startName) const;
 
+    // BFS with parent tracking; prints a path with the fewest connections.
+    // Ties are broken by neighbor insertion order.
+    void shortestPath(const std::string& startName, const std::string& destName) const;
+
+    // Totals, buildings tied for highest degree, isolated buildings,
+    // and number of connected components.
+    void connectivityReport() const;
+
 private:
+    // Runs BFS from start, marking every reached vertex in visited.
+    void markComponent(int start, std::vector<bool>& visited) const;
+
     // Adds an undirected edge (both directions), counted once.
     void addEdge(int a, int b);
 
