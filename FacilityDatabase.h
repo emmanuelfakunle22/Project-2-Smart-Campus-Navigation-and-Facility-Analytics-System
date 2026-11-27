@@ -1,6 +1,7 @@
 // FacilityDatabase.h
 // Purpose: Loads facilities.txt, keeps facilities in file order, and
-//          provides ID search through the custom HashTable.
+//          provides ID search through the custom HashTable, name and
+//          category search, and the facility category report.
 // Author:  Emmanuel (Member A - facilities / hash table)
 #ifndef FACILITYDATABASE_H
 #define FACILITYDATABASE_H
@@ -26,6 +27,17 @@ public:
 
     // Handles the ID search: invalid format / not found / found.
     void searchById(const std::string& input) const;
+
+    // Scans for facilities whose full name matches (ignoring case and
+    // outer whitespace). Prints every match in file order and the count.
+    void searchByName(const std::string& input) const;
+
+    // Scans for facilities whose full category matches (ignoring case).
+    void searchByCategory(const std::string& input) const;
+
+    // For each distinct category (grouped ignoring case, first spelling
+    // kept): count and percentage of all facilities, plus the total.
+    void categoryReport() const;
 
     // True if id (already uppercase) is 'F' followed by exactly 3 digits.
     static bool isValidId(const std::string& id);
